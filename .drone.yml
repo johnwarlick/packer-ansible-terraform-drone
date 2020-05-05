@@ -1,0 +1,46 @@
+pipeline:
+  terraform:
+    image: jmccann/drone-terraform:1
+    plan: false
+    root_dir: terraform
+    secrets:
+      azure_client_id:
+        from_secret: azure_client_id
+      azure_client_secret: 
+        from_secret: azure_client_secret
+      azure_tenant_id: 
+        from_secret: azure_tenant_id
+      azure_subscription_id:
+        from_secret: azure_subscription_id
+    targets:
+      - azurerm_resource_group.rg
+
+  packer:
+    image: appleboy/drone-packer
+    template: packer/ubuntu-base.json
+    actions:
+      - validate
+      - build
+    vars: 
+      azure_client_id:
+        from_secret: azure_client_id
+      azure_client_secret: 
+        from_secret: azure_client_secret
+      azure_tenant_id: 
+        from_secret: azure_tenant_id
+      azure_subscription_id:
+        from_secret: azure_subscription_id
+ 
+  terraform:
+    image: jmccann/drone-terraform:1
+    plan: false
+    root_dir: terraform
+    secrets:
+      azure_client_id:
+        from_secret: azure_client_id
+      azure_client_secret: 
+        from_secret: azure_client_secret
+      azure_tenant_id: 
+        from_secret: azure_tenant_id
+      azure_subscription_id:
+        from_secret: azure_subscription_id
