@@ -1,0 +1,19 @@
+---
+    - hosts: default
+      become: yes
+      tasks:
+        - name: Upgrade base packages to the latest version
+          apt:
+            name: "*"
+            state: latest  
+            update_cache: yes
+
+        - name: Make sure nginx is at latest version
+          apt:
+            name: nginx
+            state: latest
+
+        - name: start nginx
+          service:
+              name: nginx
+              state: started

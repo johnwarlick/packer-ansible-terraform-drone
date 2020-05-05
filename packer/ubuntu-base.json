@@ -1,0 +1,42 @@
+{
+    "variables": {
+      "azure_client_id": "",
+      "azure_client_secret": "",
+      "azure_tenant_id": "",
+      "azure_subscription_id": "",
+      "azure_resource_group": "test-image-rg",
+      "azure_image_name": "test-custom-image-base",
+      "azure_location": "South Central US"
+    },
+    "sensitive-variables": ["azure_client_id", "azure_client_secret", "azure_tenant_id", "azure_subscription_id"],
+    "builders": [
+      {
+        "type": "azure-arm",
+        "client_id": "{{user `azure_client_id`}}",
+        "client_secret": "{{user `azure_client_secret`}}",
+        "tenant_id": "{{user `azure_tenant_id`}}",
+        "subscription_id": "{{user `azure_subscription_id`}}",
+
+        "managed_image_resource_group_name": "{{user `azure_resource_group`}}",
+        "managed_image_name": "{{user `azure_image_name`}}",
+        "os_type": "Linux",
+        "image_publisher": "Canonical",
+        "image_offer": "UbuntuServer",
+        "image_sku": "18.04-LTS",
+
+        "azure_tags": {
+            "type": "Packer-Ansible",
+            "version": "0.1"
+        },
+
+        "location": "{{user `azure_location`}}",
+        "vm_size": "Standard_B1ls"
+      }
+    ],
+    "provisioners": [
+      {
+        "type": "ansible",
+        "playbook_file": "../ansible/image-bake.yml"
+      }
+    ]
+  }

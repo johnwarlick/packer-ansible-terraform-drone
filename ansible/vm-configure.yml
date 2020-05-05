@@ -1,0 +1,26 @@
+---
+    - hosts: all
+      become: yes
+      tasks:
+      - name: copy the nginx config file and restart nginx
+        copy:
+          src: ./ngnix.cfg
+          dest: /etc/nginx/sites-available/static_site.cfg
+
+      - name: create symlink
+        file:
+          src: /etc/nginx/sites-available/static_site.cfg
+          dest: /etc/nginx/sites-enabled/default
+          state: link
+        become: yes
+
+      - name: copy the content of the web site
+        copy:
+          src: ./static-site-src/
+          dest: /home/ubuntu/static-site
+
+      - name: restart nginx
+        service:
+          name: nginx
+          state: restarted
+  
