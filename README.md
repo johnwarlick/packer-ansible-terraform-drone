@@ -1,18 +1,7 @@
 # packer-ansible-terraform-drone
 Experimenting with simple dummy infrastructure to explore using a Drone.io pipeline for Packer-Ansible for image bake, Terraform for provisioning, and Ansible for post-provision config
 
-# 1. Create Resource Groups
+You will need to pass in the terraform cloud team / user token since `drone exec` cannot read secrets from the server. 
 ```shell
-terraform apply -target=azurerm_resource_group.rg
+drone exec --secret-file=terraform/secrets.auto.tfvars
 ```
-
-# 2. Bake image
-```shell
-packer build -var-file=secrets.json ubuntu-base.json
-```
-
-# 3. Provision
-```shell
-terraform apply
-```
-

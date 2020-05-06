@@ -1,3 +1,14 @@
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "jwarlicknetapp"
+
+    workspaces {
+      name = "packer-ansible-terraform-drone"
+    }
+  }
+}
+
 # See  https://www.terraform.io/docs/providers/azurerm/index.html
 provider "azurerm" {
     # whilst the `version` attribute is optional, we recommend pinning to a given version of the Provider

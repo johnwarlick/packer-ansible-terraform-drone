@@ -14,9 +14,12 @@ steps:
       from_secret: azure_tenant_id      
     TF_VAR_azure_subscription_id:          
       from_secret: azure_subscription_id
+    TF_VAR_terraform_cloud_backend_token:          
+      from_secret: terraform_cloud_team_api_token
+
   commands:
   - cd terraform 
-  - terraform init
+  - terraform init -backend-config="token=$TF_VAR_terraform_cloud_backend_token"
   - terraform apply -target azurerm_resource_group.rg -auto-approve
   - cd ../packer
   - packer build ubuntu-base.json 
