@@ -1,9 +1,9 @@
 {
     "variables": {
-      "azure_client_id": "",
-      "azure_client_secret": "",
-      "azure_tenant_id": "",
-      "azure_subscription_id": "",
+      "azure_client_id": "{{env `TF_VAR_azure_client_id`}}",
+      "azure_client_secret": "{{env `TF_VAR_azure_client_secret`}}",
+      "azure_tenant_id": "{{env `TF_VAR_azure_tenant_id`}}",
+      "azure_subscription_id": "{{env `TF_VAR_azure_subscription_id`}}",
       "azure_resource_group": "test-image-rg",
       "azure_image_name": "test-custom-image-base",
       "azure_location": "South Central US"

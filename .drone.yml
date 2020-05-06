@@ -5,18 +5,20 @@ name: default
 steps:
 - name: get ansible/packer/terraform
   image: codebarber/ansible-packer-terraform
+  environment:      
+    TF_VAR_azure_client_id:          
+      from_secret: azure_client_id      
+    TF_VAR_azure_client_secret:          
+      from_secret: azure_client_secret      
+    TF_VAR_azure_tenant_id:          
+      from_secret: azure_tenant_id      
+    TF_VAR_azure_subscription_id:          
+      from_secret: azure_subscription_id
   commands:
-  - terraform -version
-  - packer -version
-  - ansible --version
-
-    #   azure_client_id:
-    #     from_secret: azure_client_id
-    #   azure_client_secret: 
-    #     from_secret: azure_client_secret
-    #   azure_tenant_id: 
-    #     from_secret: azure_tenant_id
-    #   azure_subscription_id:
-    #     from_secret: azure_subscription_id
-    # targets:
-    #   - azurerm_resource_group.rg
+  - cd terraform 
+  - terraform init
+  - terraform apply -target azurerm_resource_group.rg -auto-approve
+  - cd ../packer
+  - packer build ubuntu-base.json 
+  - cd ../terraform
+  - terraform apply -auto-approve
