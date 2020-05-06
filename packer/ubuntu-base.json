@@ -36,6 +36,7 @@
     "provisioners": [
       {
         "type": "ansible",
+        "user": "root",
         "playbook_file": "../ansible/image-bake.yml"
       }
     ]
