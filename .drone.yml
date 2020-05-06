@@ -3,19 +3,20 @@ type: docker
 name: default
 
 steps:
-  - name: Resource Groups
-    image: jmccann/drone-terraform:1
-    settings:
-      plan: false
-      root_dir: terraform
-      secrets:
-        azure_client_id:
-          from_secret: azure_client_id
-        azure_client_secret: 
-          from_secret: azure_client_secret
-        azure_tenant_id: 
-          from_secret: azure_tenant_id
-        azure_subscription_id:
-          from_secret: azure_subscription_id
-      targets:
-        - azurerm_resource_group.rg
+- name: get ansible/packer/terraform
+  image: codebarber/ansible-packer-terraform
+  commands:
+  - terraform -version
+  - packer -version
+  - ansible --version
+
+    #   azure_client_id:
+    #     from_secret: azure_client_id
+    #   azure_client_secret: 
+    #     from_secret: azure_client_secret
+    #   azure_tenant_id: 
+    #     from_secret: azure_tenant_id
+    #   azure_subscription_id:
+    #     from_secret: azure_subscription_id
+    # targets:
+    #   - azurerm_resource_group.rg
