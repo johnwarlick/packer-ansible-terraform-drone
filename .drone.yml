@@ -12,23 +12,24 @@ steps:
   - mkdir -p .ssh; chmod 700 .ssh
   - ssh-keygen -t rsa -b 4096 -f .ssh/key
 
-- name: Build Azure Resource Groups
-  image: hashicorp/terraform
-  environment:      
-    TF_VAR_azure_client_id:          
-      from_secret: azure_client_id      
-    TF_VAR_azure_client_secret:          
-      from_secret: azure_client_secret      
-    TF_VAR_azure_tenant_id:          
-      from_secret: azure_tenant_id      
-    TF_VAR_azure_subscription_id:          
-      from_secret: azure_subscription_id
-    TF_VAR_terraform_cloud_backend_token:          
-      from_secret: terraform_cloud_team_api_token
-  commands: 
-  - cd terraform
-  - terraform init -backend-config="token=$TF_VAR_terraform_cloud_backend_token"
-  - terraform apply -target azurerm_resource_group.rg -auto-approve 
+# -- This step is not neccessary with the packer build commented out
+# - name: Build Azure Resource Groups
+#   image: hashicorp/terraform
+#   environment:      
+#     TF_VAR_azure_client_id:          
+#       from_secret: azure_client_id      
+#     TF_VAR_azure_client_secret:          
+#       from_secret: azure_client_secret      
+#     TF_VAR_azure_tenant_id:          
+#       from_secret: azure_tenant_id      
+#     TF_VAR_azure_subscription_id:          
+#       from_secret: azure_subscription_id
+#     TF_VAR_terraform_cloud_backend_token:          
+#       from_secret: terraform_cloud_team_api_token
+#   commands: 
+#   - cd terraform
+#   - terraform init -backend-config="token=$TF_VAR_terraform_cloud_backend_token"
+#   - terraform apply -target azurerm_resource_group.rg -auto-approve 
 
 # TODO: figure out problem with ansible provisioner and add back in
 # -- This should probably be in it's own repo so it's only triggered 
