@@ -68,6 +68,7 @@ steps:
       from_secret: terraform_cloud_team_api_token
   commands:
   - cd terraform
+  - terraform init -backend-config="token=$TF_VAR_terraform_cloud_backend_token"
   - terraform apply -auto-approve 
 
 - name: Configure VMs
