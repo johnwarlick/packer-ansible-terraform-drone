@@ -2,6 +2,22 @@
     - hosts: all
       become: yes
       tasks:
+      - name: Update package list and cache
+        apt:
+          name: "*"
+          state: latest  
+          update_cache: yes
+
+      - name: Make sure nginx is installed
+        apt:
+          name: nginx
+          state: latest
+
+      - name: start nginx
+        service:
+            name: nginx
+            state: started
+
       - name: copy the nginx config file and restart nginx
         copy:
           src: ./ngnix.cfg

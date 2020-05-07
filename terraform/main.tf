@@ -64,10 +64,10 @@ resource "azurerm_network_interface" "nic" {
 }
 
 # Locate the custom image
-data "azurerm_image" "search" {
-  name                = var.azure_image_name
-  resource_group_name = azurerm_resource_group.rg["image"].name
-}
+# data "azurerm_image" "search" {
+#   name                = var.azure_image_name
+#   resource_group_name = azurerm_resource_group.rg["image"].name
+# }
 
 resource "azurerm_linux_virtual_machine" "vms" {
     count               = var.vm_count
@@ -88,9 +88,16 @@ resource "azurerm_linux_virtual_machine" "vms" {
         storage_account_type = "Standard_LRS"
     }
     
-    source_image_id = data.azurerm_image.search.id
+    # source_image_id = data.azurerm_image.search.id
+    # For now just use a standard VM
+    source_image_reference {
+        publisher = "Canonical"
+        offer     = "UbuntuServer"
+        sku       = "18.04-LTS"
+        version   = "latest"
+    }
 
-    # This is to ensure SSH comes up before we run the local exec.
+    # This is to ensure SSH comes up before Ansible runs later in the build
     provisioner "remote-exec" { 
         inline = ["echo 'Hello World'"]
 
@@ -102,8 +109,14 @@ resource "azurerm_linux_virtual_machine" "vms" {
         }
     }
 
+    # Perhaps more effecient to run ansible on all hosts in one play
+    # provisioner "local-exec" {
+    #     command = "ansible-playbook -e 'ansible_user=${var.vm_admin_user}' -i ${self.public_ip_address}, --private-key private_key --ssh-common-args='-o StrictHostKeyChecking=no' ../ansible/vm-configure.yml"
+    # }
+
+    # Pass hosts to Ansible for next step in build
     provisioner "local-exec" {
-        command = "ansible-playbook -e 'ansible_user=${var.vm_admin_user}' -i ${self.public_ip_address}, --private-key ${var.private_key_path} --ssh-common-args='-o StrictHostKeyChecking=no' ../ansible/vm-configure.yml"
+        command = "echo ${self.public_ip_address} >> ../ansible/ips.txt"
     }
 
 }

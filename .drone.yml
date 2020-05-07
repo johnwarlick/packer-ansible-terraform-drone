@@ -3,8 +3,17 @@ type: docker
 name: default
 
 steps:
-- name: get ansible/packer/terraform
-  image: codebarber/ansible-packer-terraform
+- name: Create temp SSH key pair for build and clear Ansible hosts file
+  image: alpine
+  failure: ignore # if SSH key exists already, continue build
+  commands:
+  - rm -rf ansible/ips.txt
+  - apk add --no-cache --update openssh-keygen
+  - mkdir -p .ssh; chmod 700 .ssh
+  - ssh-keygen -t rsa -b 4096 -f .ssh/key
+
+- name: Build Azure Resource Groups
+  image: hashicorp/terraform
   environment:      
     TF_VAR_azure_client_id:          
       from_secret: azure_client_id      
@@ -16,12 +25,52 @@ steps:
       from_secret: azure_subscription_id
     TF_VAR_terraform_cloud_backend_token:          
       from_secret: terraform_cloud_team_api_token
-
-  commands:
-  - cd terraform 
+  commands: 
+  - cd terraform
   - terraform init -backend-config="token=$TF_VAR_terraform_cloud_backend_token"
-  - terraform apply -target azurerm_resource_group.rg -auto-approve
-  - cd ../packer
-  - packer build ubuntu-base.json 
-  - cd ../terraform
-  - terraform apply -auto-approve
+  - terraform apply -target azurerm_resource_group.rg -auto-approve 
+
+# TODO: figure out problem with ansible provisioner and add back in
+# -- This should probably be in it's own repo so it's only triggered 
+# -- when there's actually a change made to the packer template...
+# -- It would be nice if Drone provided a conditional for folders
+# -- that have changed since the last run
+# ------------------------
+# --- for now just skip the pre-provision step
+# - name: Bake VM Image
+#   image: hashicorp/packer
+#   environment:      
+#     AZURE_CLIENT_ID:          
+#       from_secret: azure_client_id      
+#     AZURE_CLIENT_SECRET:          
+#       from_secret: azure_client_secret      
+#     AZURE_TENANT_ID:          
+#       from_secret: azure_tenant_id      
+#     AZURE_SUBSCRIPTION_ID:          
+#       from_secret: azure_subscription_id
+#   commands:
+#   - cd packer 
+#   - packer build -force ubuntu-base.json
+
+- name: Provision VMs
+  image: hashicorp/terraform
+  environment:      
+    TF_VAR_azure_client_id:          
+      from_secret: azure_client_id      
+    TF_VAR_azure_client_secret:          
+      from_secret: azure_client_secret      
+    TF_VAR_azure_tenant_id:          
+      from_secret: azure_tenant_id      
+    TF_VAR_azure_subscription_id:          
+      from_secret: azure_subscription_id
+    TF_VAR_terraform_cloud_backend_token:          
+      from_secret: terraform_cloud_team_api_token
+  commands:
+  - cd terraform
+  - terraform apply -auto-approve 
+
+- name: Configure VMs
+  image: schmots1/netapp-ansible
+  commands:
+  - cd ansible
+  - ansible-playbook -e 'ansible_user=testadmin' -i ips.txt --private-key ../.ssh/key --ssh-common-args='-o StrictHostKeyChecking=no' vm-configure.yml

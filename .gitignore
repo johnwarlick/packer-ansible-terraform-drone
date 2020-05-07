@@ -5,3 +5,6 @@
 /terraform/terraform.tfstate.backup
 /terraform/secrets.auto.tfvars
 *.retry
+/terraform/crash.log
+/ansible/ips.txt
+/.ssh/
